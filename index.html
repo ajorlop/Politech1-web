@@ -275,12 +275,12 @@ nav {
   z-index: 1;
 }
 
-/* Panel slots — absolutely positioned left and right of satellite */
+/* Panel slots — anchored to match satellite top edge */
 .panel-slot {
   position: absolute;
   width: 280px;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translateY(-140px); /* shift up to align with sat top */
   z-index: 3;
 }
 .panel-slot-left  { right: calc(50% + 190px); }
@@ -396,9 +396,10 @@ nav {
 .comms-ph-sub { font-family: var(--mono); font-size: 0.67rem; color: var(--text-3); }
 
 /* ── TELEMETRY BAND ─────────────────────────────────── */
-/* Disruptive element: full-bleed dark band with live telemetry readouts */
 .telemetry-band {
-  background: var(--text);
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   padding: 3rem 0;
   overflow: hidden;
   position: relative;
@@ -407,8 +408,8 @@ nav {
   content: '';
   position: absolute; inset: 0;
   background-image:
-    linear-gradient(rgba(37,99,235,0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(37,99,235,0.06) 1px, transparent 1px);
+    linear-gradient(rgba(37,99,235,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37,99,235,0.05) 1px, transparent 1px);
   background-size: 40px 40px;
   pointer-events: none;
 }
@@ -424,7 +425,7 @@ nav {
   font-size: 0.62rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.3);
+  color: var(--text-3);
   margin-bottom: 1.75rem;
   display: flex;
   align-items: center;
@@ -440,15 +441,16 @@ nav {
 .telemetry-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  border: 1px solid rgba(255,255,255,0.08);
+  gap: 0;
+  border: 1px solid var(--border);
   border-radius: 10px;
   overflow: hidden;
+  background: var(--surface);
 }
 .tel-cell {
   padding: 1.5rem 1.75rem;
-  background: rgba(255,255,255,0.03);
-  border-right: 1px solid rgba(255,255,255,0.07);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
   position: relative;
   overflow: hidden;
 }
@@ -470,14 +472,14 @@ nav {
   font-size: 0.6rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.35);
+  color: var(--text-3);
   margin-bottom: 0.6rem;
 }
 .tel-val {
   font-family: var(--mono);
   font-size: 2rem;
   font-weight: 300;
-  color: #fff;
+  color: var(--text);
   letter-spacing: -0.03em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -488,10 +490,10 @@ nav {
   font-family: var(--mono);
   font-size: 0.6rem;
   letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.25);
+  color: var(--text-3);
 }
-.tel-ok { color: #34d399; }
-.tel-warn { color: #fbbf24; }
+.tel-ok { color: #16a34a; }
+.tel-warn { color: #ca8a04; }
 
 /* ── ABOUT ────────────────────────────────────────────── */
 #about { background: var(--surface); border-top: 1px solid var(--border); }
@@ -737,7 +739,7 @@ footer { border-top: 1px solid var(--border); padding: 1.75rem 2.5rem; display: 
       <div class="tel-cell">
         <div class="tel-key">Órbitas completadas</div>
         <div class="tel-val" id="tel-orbits">—</div>
-        <div class="tel-status" style="color:rgba(255,255,255,0.3)">↻ ACTUALIZANDO</div>
+        <div class="tel-status">↻ ACTUALIZANDO</div>
       </div>
     </div>
   </div>
@@ -988,12 +990,6 @@ function activatePanel(idx) {
   gsap.set(panel, { y: 10, opacity: 0 });
   gsap.to(panel, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' });
 
-  // FIXED: only gentle rotation, NO translateX — satellite stays centered
-  gsap.to('#sat-img', {
-    rotateZ: idx % 2 === 0 ? -1.5 : 1.5,
-    duration: 0.9, ease: 'power2.out'
-  });
-
   // Show correct connector
   const connLeft  = document.getElementById('conn-left');
   const connRight = document.getElementById('conn-right');
@@ -1035,11 +1031,7 @@ ScrollTrigger.create({
   onLeaveBack: deactivateAll,
 });
 
-// Satellite idle breathing animation — only rotation, no position change
-gsap.to('#sat-img', {
-  rotateZ: 1.2,
-  duration: 5, yoyo: true, repeat: -1, ease: 'sine.inOut'
-});
+// Satellite — completely static, no animation
 
 // ── FADE-UP ELEMENTS ───────────────────────────────────
 gsap.utils.toArray('.fade-up').forEach(el => {
